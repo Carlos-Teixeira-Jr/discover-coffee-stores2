@@ -30,13 +30,11 @@ export default function Home(props) {
   //Constante que permite usar o Hook que usa a API GeoLocation;
   const {handleTrackLocation, locationErrorMsg, isFindingLocation} = 
     useTrackLocation();
-
   //const [coffeeStores, setCoffeeStores] = useState("");
   const [coffeeStoresError, setCoffeeStoresError] = useState(null);
-
   const { dispatch, state } = useContext(StoreContext);
-
   const { coffeeStores, latLong } = state;
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     async function setCoffeeStoresByLocation() {
@@ -66,10 +64,20 @@ export default function Home(props) {
   
   //Evento que pega as coordenadas geográficas do usuário para encontrar coffee shops próximos a ele;
   const handleOnBannerBtnClick = () => {
-
     handleTrackLocation();
-
   }
+
+  useEffect(() => {
+    function handleResize(){
+      setIsMobile(window.innerWidth < 850);
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+  
   
   return (
     <div className={styles.container}>
@@ -86,7 +94,13 @@ export default function Home(props) {
         {coffeeStoresError && <p>Something went wrong:{coffeeStoresError}</p>}
         
         <div className={styles.heroImage}>
-          <Image src="/static/hero-image.png" width={700} height={400}/>
+          <Image 
+            src="/static/hero-image.png" 
+            width={isMobile ? 300 : 700} 
+            height={isMobile ? 200 : 400}
+            alt='hero image'
+            priority={true}
+          />
         </div>
 
         {coffeeStores.length > 0 && (
